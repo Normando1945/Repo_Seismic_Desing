@@ -101,9 +101,9 @@ From this point on, all commands should be executed inside this folder.
 ### Step 4. Open the repository in Visual Studio Code
 
 Now that the repository already exists on the computer, open it in **Visual Studio Code** by running:
-
+```bash
     code .
-
+```
 If this command does not work, students can simply open **Visual Studio Code** manually and then select the cloned repository folder.
 
 ### Step 5. Open the integrated terminal in VS Code
@@ -137,45 +137,45 @@ From this point on, it is recommended that all commands be executed from this te
 It is strongly recommended to create a virtual environment so that all students work with the same isolated Python setup.
 
 Run:
-
+```bash
     python -m venv venv
-
+```
 This command will create a folder called `venv` inside the repository.
 
 ### Step 8. Activate the virtual environment in Windows
 
 If students are using **Command Prompt**, run:
-
+```bash
     venv\Scripts\activate
-
+```
 After activation, `(venv)` should appear at the beginning of the terminal line. This indicates that the virtual environment is active.
 
 ### Step 9. Install the required dependencies
 
 Once the virtual environment has been activated, install the required Python libraries with:
-
+```bash
     pip install -r requirements.txt
-
+```
 This step installs all the packages needed by the repository.
 
 ### Step 10. Install the repository in editable mode
 
 To allow Python to recognize the package correctly while developing and testing the code, run:
-
+```bash
     pip install -e .
-
+```
 This is useful because the package can be modified during the semester without reinstalling it every time.
 
 ### Step 11. Install Jupyter support inside the environment
 
 If students are going to work with notebooks in VS Code, it is recommended to also install `ipykernel`:
-
+```bash
     pip install ipykernel
-
+```
 Then register the environment as a Jupyter kernel:
-
+```bash
     python -m ipykernel install --user --name=venv --display-name "Python (Seismic Design)"
-
+```
 This will allow students to select the correct Python environment when opening notebooks.
 
 ### Step 12. Select the correct interpreter in VS Code
@@ -195,14 +195,14 @@ If a notebook is opened, also make sure that the selected kernel is:
 A simple way to verify the installation is to open Python and try importing the main package.
 
 Run:
-
+```bash
     python
-
+```
 Then type:
-
+```bash
     import seismic_design
     print("Package imported successfully")
-
+```
 If no error appears, the installation was completed correctly.
 
 ## First Stage of the Repository
@@ -241,19 +241,19 @@ Since the repository will be updated progressively during the semester, students
 Open **Command Prompt** or the **integrated terminal in VS Code**.
 
 ### Step 2. Move into the repository folder
-
+```bash
     cd Repo_Seismic_Desing
-
+```
 ### Step 3. Activate the virtual environment
 
 If students are using **Command Prompt**, run:
-
+```bash
     venv\Scripts\activate
-
+```
 ### Step 4. Pull the latest changes
-
+```bash
     git pull
-
+```
 This command downloads and merges the most recent changes from the remote repository into the local copy.
 
 ### Recommendation
@@ -263,20 +263,20 @@ Students are encouraged to run `git pull` before starting each class session in 
 ## Summary of the Main Installation and Update Commands
 
 ### First-time installation
-
+```bash
     git clone https://github.com/Normando1945/Repo_Seismic_Desing.git
     cd Repo_Seismic_Desing
     python -m venv venv
     venv\Scripts\activate
     pip install -r requirements.txt
     pip install -e .
-
+```
 ### Regular update before class
-
+```bash
     cd Repo_Seismic_Desing
     venv\Scripts\activate
     git pull
-
+```
 ## Additional Notes
 
 - If Git is not recognized in the terminal, it must be installed and added correctly to the system path.
@@ -300,7 +300,7 @@ If students wish to experiment with the code, they are encouraged to do so in th
 If you use this repository in academic work, class projects, reports, or educational material, please cite it as follows.
 
 ### BibTeX
-
+```bash
     @misc{celi2026seismicdesign,
       author       = {Carlos Andrés Celi Sánchez},
       title        = {Seismic-Resistant Design: Educational Repository for Seismic Design and Structural Engineering},
@@ -309,7 +309,7 @@ If you use this repository in academic work, class projects, reports, or educati
       journal      = {GitHub repository},
       howpublished = {\url{https://github.com/Normando1945/Repo_Seismic_Desing}}
     }
-
+```
 ### APA (7th Edition)
 
 Celi Sánchez, C. A. (2026). *Seismic-Resistant Design: Educational Repository for Seismic Design and Structural Engineering* [Structural Engineering]. GitHub. https://github.com/Normando1945/Repo_Seismic_Desing
