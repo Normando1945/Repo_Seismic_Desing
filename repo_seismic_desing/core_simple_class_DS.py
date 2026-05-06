@@ -338,7 +338,7 @@ class SPEC_BNewmark():
         ax[1].set_ylabel('Acceleration [g]')
         ax[1].set_xlabel('Period [s]')
         ax[1].grid(visible= True, axis= 'x')
-        # ax[1].set_xlim(self.Ti[0], self.Ti[-1])
+        ax[1].set_xlim(Ti[0], Ti[-1])
         ax[1].legend(loc='best')
         
         plt.tight_layout()
@@ -352,7 +352,8 @@ class SPEC_BNewmark():
 #########################################################################################################################################
 
 class SPEC_NEC_2024():
-    def __init__(self, z = 0.4, n = 2.4, fa = 1.2, fd = 1.0, fs = 1.0, dT = 0.001, Tf = 5.0, r = 1.0):
+    def __init__(self, z = 0.4, n = 2.4, fa = 1.2, fd = 1.0, fs = 1.0, dT = 0.001, Tf = 5.0, r = 1.0,
+                 city = 'Ciudad', soild = 'soild', pga = '0.4', zone = 'II'):
         self.z = z
         self.n = n
         self.fa = fa
@@ -361,6 +362,10 @@ class SPEC_NEC_2024():
         self.dT = dT
         self.Tf = Tf
         self.r = r
+        self.city = city
+        self.soild = soild
+        self.pga = pga
+        self.zone = zone
         
     def spec(self):
         z = self.z
@@ -394,12 +399,36 @@ class SPEC_NEC_2024():
                     else:
                         Sae.append(n*z*fa*(Tc/T)**(r)*(Tl/T)**(2))
                         Tie.append(T)
-        
         print("="*120)
         print(f'To = {To} [s], Tc = {Tc} [s], Tl = {Tl} [s], fa = {fa}, fd = {fd}, fs = {fs}')
         print("="*120)
         
         return Sae, Tie, To, Tc, Tl, fa, fd, fs
+        
+        
+        
+    def plotSPECNEC(self, Tie, Sae):
+        city = self.city
+        soild = self.soild
+        pga = self.pga
+        zone = self.zone
+        #----------Plot------------#
+        fig, ax = plt.subplots(1,1, figsize = (20,6))
+        fig.suptitle(f"UHS NEC 2024, City = {city}, Soild = {soild}, PGA = {pga:.2f}, Zone = {zone}", fontsize=18, color = (0,0,1), y=0.98)
+        
+        ax.plot(Tie, Sae, color = (0,0,0), alpha = 1.0 ,lw = 1.0, ls = '-', marker = 'o', 
+                markersize = 0, label = 'UHS NEC 2024')
+        ax.set_title('UHS NEC 2024', fontweight = 'bold')
+        ax.set_ylabel('Acceleration [g]')
+        ax.set_xlabel('Period [s]')
+        ax.grid(visible= True, axis= 'x')
+        ax.set_xlim(Tie[0], Tie[-1])
+        ax.legend(loc='best')
+        
+        plt.tight_layout()
+        plt.show() 
+        
+        
             
         
           
