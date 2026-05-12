@@ -353,7 +353,7 @@ class SPEC_BNewmark():
 
 class SPEC_NEC_2024():
     def __init__(self, z = 0.4, n = 2.4, fa = 1.2, fd = 1.0, fs = 1.0, dT = 0.001, Tf = 5.0, r = 1.0,
-                 city = 'Ciudad', soild = 'soild', pga = '0.4', zone = 'II'):
+                 city = 'Ciudad', soild = 'soild', pga = '0.4', zone = 'II', Tu = 0.5):
         self.z = z
         self.n = n
         self.fa = fa
@@ -366,6 +366,7 @@ class SPEC_NEC_2024():
         self.soild = soild
         self.pga = pga
         self.zone = zone
+        self.Tu = Tu
         
     def spec(self):
         z = self.z
@@ -375,7 +376,8 @@ class SPEC_NEC_2024():
         fs = self.fs
         dT = self.dT
         Tf = self.Tf 
-        r = self.r       
+        r = self.r
+        Tu = self.Tu       
         
         To = 0.1 * fs * fd / fa
         Tc = 0.45 * fs * fd / fa
@@ -383,6 +385,17 @@ class SPEC_NEC_2024():
         
         Sae = []
         Tie = []
+        
+        if Tu <= To:
+            Saeu = z*fa*(1 + 1.4*(Tu/To))
+        else:
+            if Tu <= Tc:
+                Saeu = n*z*fa
+            else:
+                if Tu <= Tl:
+                    Saeu = n*z*fa*(Tc/Tu)**(r)
+                else:
+                    Saeu = n*z*fa*(Tc/Tu)**(r)*(Tl/Tu)**(2)
 
         for T in np.arange(0, Tf, dT):
             if T <= To:
@@ -403,11 +416,11 @@ class SPEC_NEC_2024():
         print(f'To = {To} [s], Tc = {Tc} [s], Tl = {Tl} [s], fa = {fa}, fd = {fd}, fs = {fs}')
         print("="*120)
         
-        return Sae, Tie, To, Tc, Tl, fa, fd, fs
+        return Sae, Tie, To, Tc, Tl, fa, fd, fs, Saeu
         
         
         
-    def plotSPECNEC(self, Tie, Sae):
+    def plotSPECNEC(self, Tie, Sae, Tu, Saeu):
         city = self.city
         soild = self.soild
         pga = self.pga
@@ -418,6 +431,8 @@ class SPEC_NEC_2024():
         
         ax.plot(Tie, Sae, color = (0,0,0), alpha = 1.0 ,lw = 1.0, ls = '-', marker = 'o', 
                 markersize = 0, label = 'UHS NEC 2024')
+        ax.plot(Tu, Saeu, color = (1,0,0), alpha = 1.0 ,lw = 1.0, ls = '-', marker = 'o', 
+                markersize = 10, label = f'T_user = {Tu:.2f} [s], Sae_user = {Saeu:.2f} [g]')
         ax.set_title('UHS NEC 2024', fontweight = 'bold')
         ax.set_ylabel('Acceleration [g]')
         ax.set_xlabel('Period [s]')
