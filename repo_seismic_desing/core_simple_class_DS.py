@@ -431,13 +431,16 @@ class SPEC_NEC_2024():
         
         ax.plot(Tie, Sae, color = (0,0,0), alpha = 1.0 ,lw = 1.0, ls = '-', marker = 'o', 
                 markersize = 0, label = 'UHS NEC 2024')
-        ax.plot(Tu, Saeu, color = (1,0,0), alpha = 1.0 ,lw = 1.0, ls = '-', marker = 'o', 
-                markersize = 10, label = f'T_user = {Tu:.2f} [s], Sae_user = {Saeu:.2f} [g]')
+        ax.plot(np.array([Tu, Tu]), np.array([0,Saeu]), color = (1,0,0), alpha = 1.0 ,lw = 1.5, ls = '--', marker = 'o', 
+                markersize = 5, markerfacecolor = (1,1,1), markeredgecolor = (1,0,0))
+        ax.text(Tu*1.05, Saeu,  f'T_user = {Tu:.2f} [s], Sae_user = {Saeu:.2f} [g]', ha='left', va='bottom', color = (1,0,0), fontweight = 'bold')
+        
         ax.set_title('UHS NEC 2024', fontweight = 'bold')
         ax.set_ylabel('Acceleration [g]')
         ax.set_xlabel('Period [s]')
         ax.grid(visible= True, axis= 'x')
         ax.set_xlim(Tie[0], Tie[-1])
+        ax.set_ylim(0, max(Sae)*1.1)
         ax.legend(loc='best')
         
         plt.tight_layout()
