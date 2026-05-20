@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import eig, inv  
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -446,7 +447,52 @@ class SPEC_NEC_2024():
         plt.tight_layout()
         plt.show() 
         
-        
+
+
+#########################################################################################################################################
+#########################################################################################################################################
+####################################################### EIG & Normalize #################################################################
+#########################################################################################################################################
+#########################################################################################################################################
+
+class Eig_Normalize():
+    def __init__(self):
+        pass
+
+    def eigen(K, M):                                                                                                                 # Define a function to solve the generalized eigenvalue problem
+        a = inv(M) @ K                                                                                                               # Calculate the matrix A = M^(-1) * K (generalized eigenvalue problem)
+        w2, v = eig(a)                                                                                                               # Solve for eigenvalues (w2) and eigenvectors (v)
+        return w2, v, a                                                                                                              # Return eigenvalues, eigenvectors, and the matrix A
+
+    def normalize_modes(v, M):                                                                                                       # Function to normalize the mode shapes with respect to mass
+        normalized_v = np.zeros_like(v)                                                                                              # Initialize a matrix to store normalized mode shapes
+        for i in range(v.shape[1]):                                                                                                  # Loop through each mode shape
+            modal_mass = v[:, i].T @ M @ v[:, i]                                                                                     # Compute the modal mass for the i-th mode
+            normalized_v[:, i] = v[:, i] / np.sqrt(modal_mass)                                                                       # Normalize the mode shape
+        return normalized_v                                                                                                          # Return the normalized mode shapes
+
+    # Calculate eigenvalues, eigenvectors, and normalization
+    w2, v, a = eigen(K, M)                                                                                                           # Call the function to calculate eigenvalues and eigenvectors
+    idx = np.argsort(w2)                                                                                                             # Sort eigenvalues in ascending order
+    w2 = w2[idx]                                                                                                                     # Reorganize eigenvalues
+    w = np.sqrt(w2)                                                                                                                  # Compute the natural angular frequencies w = sqrt(w2)
+    T = 2 * np.pi / w                                                                                                                # Compute the periods T = 2 * pi / w
+    f = 1 / T                                                                                                                        # Compute the natural frequencies f = 1 / T
+    v = v[:, idx]                                                                                                                    # Reorganize eigenvectors according to sorted eigenvalues
+    v_normalized = normalize_modes(v, M)                                                                                             # Normalize the mode shapes using the mass matrix
+
+    # Combine the results into a DataFrame
+    Resul_frame = pd.DataFrame({
+        'Angular Frequencies': w,                                                                                                    # Column for angular frequencies w
+        'Periods [s]': T,                                                                                                            # Column for periods T
+        'Frequencies [Hz]': f                                                                                                        # Column for frequencies f
+    })
+
+    # Add normalized mode shapes to the DataFrame
+    for i in range(v_normalized.shape[1]):                                                                                           # Loop through each normalized mode shape
+        Resul_frame[f'Normalized Mode {i+1}'] = v_normalized[:, i]                                                                   # Add each normalized mode shape as a separate column
+
+    Resul_frame.head(len(T))        
             
         
           
