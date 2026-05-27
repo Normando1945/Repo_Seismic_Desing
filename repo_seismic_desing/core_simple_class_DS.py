@@ -448,7 +448,6 @@ class SPEC_NEC_2024():
         plt.show() 
         
 
-
 #########################################################################################################################################
 #########################################################################################################################################
 ####################################################### EIG & Normalize #################################################################
@@ -474,3 +473,67 @@ class Eig_Normalize():
             modal_mass = v[:, i].T @ M @ v[:, i]                                                                                     # Compute the modal mass for the i-th mode
             normalized_v[:, i] = v[:, i] / np.sqrt(modal_mass)                                                                       # Normalize the mode shape
         return normalized_v                                                                                                          # Return the normalized mode shapes
+
+#########################################################################################################################################
+#########################################################################################################################################
+###################################################### K & M (Shear Building) ###########################################################
+#########################################################################################################################################
+#########################################################################################################################################
+
+class Assamble_K_M():
+
+    def __init__(self, span = any, iner = any , H = any, E = 2000000, G = 0, f = 1/5, A = 0.02, Mall = any):
+        self.span = span
+        self.iner = iner
+        self.H = H
+        self.E = E
+        self.G = G
+        self.f = f
+        self.A = A
+        self.MPall = Mall
+
+    def kfloor(self):
+        span = self.span
+        iner = self.iner
+        H = self.H
+        E = self.E
+        G = self.G
+        f = self.f
+        A = self.A
+        
+        k = np.zeros(len(H))                                                                                                            # Initialize stiffness vector with zeros
+        number_col = (span[0] + 1) * (span[1] + 1)                                                                                      # Total number of columns in the base floor
+        print('='*120)
+        print(f'number of columns per floor = ', number_col)
+        print('='*120)
+        
+        for i in range(len(H)):                                                                                                         # Loop through each story
+            Beta = 6 * E * iner * f / (G * A * H[i] ** 2)                                                                               # Beta Factor
+            k[i] = (number_col) * (12 * E * iner / (H[i] ** 3)) * 1 / (1 + 2 * Beta)                                                    # Stiffness calculation
+  
+        return k
+
+    def matrixK(self, k):
+        K = np.zeros((len(k), len(k)))                                                                                                  # Initialize the stiffness matrix with zeros
+        for j in range(len(k)):                                                                                                         # Loop through each row
+            for i in range(len(k)):                                                                                                     # Loop through each column
+                if i == 0:                                                                                                              # First row of the matrix
+                    if i == j:                                                                                                          # Diagonal element
+                        K[i, j] = k[i] + k[i + 1]                                                                                       # Add stiffnesses of current and next floors
+                        K[i + 1, j] = -k[i + 1]                                                                                         # Set off-diagonal element for coupling
+                elif j > 0:                                                                                                             # Rows after the first one
+                    if i == j:                                                                                                          # Diagonal element
+                        K[i - 1, j] = -k[i]                                                                                             # Set off-diagonal element for coupling
+                        if i <= len(k) - 2:                                                                                             # Until the second to last row
+                            K[i, j] = k[i] + k[i + 1]                                                                                   # Add stiffnesses of current and next floors
+                            K[i + 1, j] = -k[i + 1]                                                                                     # Set off-diagonal element for coupling
+                        else:                                                                                                           # Last row
+                            K[i, j] = k[i]                                                                                              # Only the stiffness of the last floor
+
+        return K
+    
+    def matrixM(self):
+        MPall = self.MPall
+        M = np.diag(MPall)                                                                                                               # Create a diagonal mass matrix using the mass vector
+
+        return M

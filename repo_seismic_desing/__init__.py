@@ -3,7 +3,8 @@ from .core_simple_class_DS import (Simple_free_motion, plt_amp_tim,
                                    Step_by_Step_BNewmark,
                                    SPEC_BNewmark,
                                    SPEC_NEC_2024,
-                                   Eig_Normalize)
+                                   Eig_Normalize,
+                                   Assamble_K_M)
 
 __all__ = [
     "Simple_free_motion",
@@ -12,5 +13,6 @@ __all__ = [
     "Step_by_Step_BNewmark",
     "SPEC_BNewmark",
     "SPEC_NEC_2024",
-    "Eig_Normalize"
+    "Eig_Normalize",
+    "Assamble_K_M"
 ]
