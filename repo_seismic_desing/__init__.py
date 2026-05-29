@@ -4,7 +4,9 @@ from .core_simple_class_DS import (Simple_free_motion, plt_amp_tim,
                                    SPEC_BNewmark,
                                    SPEC_NEC_2024,
                                    Eig_Normalize,
-                                   Assamble_K_M)
+                                   Assamble_K_M,
+                                   Plot_vibration,
+                                   SpecNec2024_Sae_Sai_modal)
 
 __all__ = [
     "Simple_free_motion",
@@ -14,5 +16,7 @@ __all__ = [
     "SPEC_BNewmark",
     "SPEC_NEC_2024",
     "Eig_Normalize",
-    "Assamble_K_M"
+    "Assamble_K_M",
+    "Plot_vibration",
+    "SpecNec2024_Sae_Sai_modal"
 ]

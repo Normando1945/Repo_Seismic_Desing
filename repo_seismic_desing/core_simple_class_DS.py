@@ -537,3 +537,229 @@ class Assamble_K_M():
         M = np.diag(MPall)                                                                                                               # Create a diagonal mass matrix using the mass vector
 
         return M
+
+
+#########################################################################################################################################
+#########################################################################################################################################
+####################################################### Plot Vibration Modes ############################################################
+#########################################################################################################################################
+#########################################################################################################################################
+
+class Plot_vibration():
+    def __init__(self, v, num_modes_to_plot, T, plotmax = 5, project = 'cualquier cosa'):
+        self.v = v
+        self.num_modes_to_plot = num_modes_to_plot
+        self.T = T
+        self.plotmax = plotmax
+        self.project = project
+
+    # Function to plot the vibration modes in subplots
+    def plot_vibration_modes_subplots(self):
+        project = self.project
+        v = self.v
+        num_modes_to_plot = self.num_modes_to_plot
+        T = self.T
+        plotmax = self.plotmax
+                
+        num_dofs = v.shape[0]                                                                                                         # Number of degrees of freedom (DOFs)
+        y_coordinates = np.linspace(0, num_dofs, num_dofs + 1)                                                                        # Define vertical coordinates, including the base level (0)
+        
+        num_modes_to_plot = plotmax                                                                                                             # Number of vibration modes to plot
+
+        # Ensure the number of modes to plot does not exceed the total number of available modes
+        if num_modes_to_plot < len(T):
+            num_modes_to_plot = num_modes_to_plot                                                                                         # Use the user-defined number of modes
+        else:
+            num_modes_to_plot = len(T)                                                                                                    # Limit to the total number of modes available
+
+        # Create the figure and subplots
+        fig, axes = plt.subplots(1, num_modes_to_plot, figsize=(3*num_modes_to_plot, 8), sharey=True)                                 # Create subplots for the desired number of modes
+        fig.suptitle(f"Vibration Modes of MDOF System, Project = {project}", fontsize=14, y=0.98)                                                           # Set the main title for the figure
+
+        if num_modes_to_plot == 1:                                                                                                    # Ensure 'axes' is iterable for a single subplot
+            axes = [axes]                                                                                                             # Convert single axis to a list
+        
+        for mode in range(num_modes_to_plot):                                                                                         # Loop through each mode to be plotted
+            mode_shape = np.append(0, v[:, mode])                                                                                     # Add a zero at the start to represent the base level
+            mode_shape_normalized = mode_shape / max(abs(mode_shape))                                                                 # Normalize the mode shape for better visualization
+
+            # Plot the current mode shape
+            axes[mode].plot(mode_shape_normalized, y_coordinates, marker='o', markerfacecolor=(0, 0, 0),                              # Plot the positive normalized mode shape
+                            linestyle='-', color=(0, 0, 0), linewidth=1.5)                                                            # Solid black line for deformed shape
+            axes[mode].plot(mode_shape_normalized * -1, y_coordinates, marker='o', markerfacecolor=(1, 1, 1),                         # Plot the mirrored negative mode shape
+                            linestyle='--', color=(0, 0, 0), linewidth=1)                                                             # Dashed black line for mirrored shape
+            axes[mode].plot(np.zeros(len(y_coordinates)), y_coordinates, marker='o', markerfacecolor=(0, 0, 1),                       # Plot the undeformed structure
+                            linestyle='--', color=(0, 0, 1), linewidth=1)                                                             # Dashed blue line for the original shape
+
+            # Add text to display the period of vibration for the current mode
+            axes[mode].text(0.3, 0,                                                                                                   # Position the text near the base level
+                f"T{mode+1:.0f} = {T[mode]:.3f} [s]", ha='left', va='bottom', rotation=0, fontsize=8)                                 # Display the period T of the mode
+            
+            
+            # Add proportional arrows 
+            for o in range(len(y_coordinates)):                                                                                      
+                vector = mode_shape_normalized[o]                                                 
+                axes[mode].annotate("", xy=(vector, y_coordinates[o]), xytext=(0, y_coordinates[o]),   
+                                    arrowprops=dict(facecolor=(0, 0, 0), edgecolor=(0, 0, 0), 
+                                                    arrowstyle='-|>', lw=0.5, alpha=1.0))
+
+                
+
+            axes[mode].set_title(f"Mode {mode+1}", fontsize=10)                                                                       # Set the title for the current subplot
+            axes[mode].set_xlabel("Amplitude (Normalized)", fontsize=10)                                                              # Set the x-axis label
+            # axes[mode].grid(which='both', axis='y', alpha=0)                                                                          # Add gridlines on the y-axis for better readability
+        
+        axes[0].set_ylabel("Degrees of Freedom (DOFs)", fontsize=10)                                                                  # Set y-axis label only on the first subplot
+        plt.tight_layout()                                                                                                            # Adjust layout to prevent overlap
+        plt.show()                                                                                                                    # Display the plots
+
+        
+
+#########################################################################################################################################
+#########################################################################################################################################
+########################################### Spec Nec 2024, Sae, Sai, modal spectral #####################################################
+#########################################################################################################################################
+#########################################################################################################################################
+
+class SpecNec2024_Sae_Sai_modal():
+    def __init__(self, Tfind = [1,0.5,0.3], fads = [1,1,1], I = 1, z = 0.4, n = 2.4, R = 7, r = 1, Tf = 4, dT = 0.01):
+        self.Tfind = Tfind
+        self.fads = fads
+        self.I = I
+        self.z = z
+        self.n = n
+        self.R = R
+        self.r = r
+        self.Tf = Tf
+        self.dT = dT
+
+    def plot_SpecNEC_modal(self):
+        
+        Tfind = self.Tfind
+        fads = self.fads
+        Tf = self.Tf
+        dT = self.dT
+        r = self.r
+        R = self.R
+        z = self.z
+        I = self.I
+        n = self.n
+        
+        
+        if Tfind[0] > Tf:
+            Tf = Tfind[0] + 0.2
+        else:
+            Tf = Tf
+
+
+        To = 0.10 * fads[2] * fads[1] / fads[0]
+        Tc = 0.45 * fads[2] * fads[1] / fads[0]
+        Tl = 2.4 * fads[1]
+
+        Sae = []
+        Sai = []
+        Tie = []
+
+        for T in np.arange(0, Tf, dT):
+            if T <= To:
+                Sae.append([z * fads[0] * (1 + (n - 1) * T / To)])
+                Sai.append([I * (n * z * fads[0] / (R))])
+                Tie.append([T])
+            else:
+                if T <= Tc:
+                    Sae.append([n * z * fads[0]])
+                    Sai.append([I * n * z * fads[0] / (R)])
+                    Tie.append([T])
+                else:
+                    if T <= Tl:
+                        Sae.append([n * z * fads[0] * (Tc / T) ** r])
+                        Sai.append([I * (n * z * fads[0] * (Tc / T) ** r / (R))])
+                        Tie.append([T])
+                    else:
+                        Sae.append([n * z * fads[0] * (Tc / Tl) ** r * (Tl / T) ** 2])
+                        Sai.append([I * ( n * z * fads[0] * (Tc / Tl) ** r * (Tl / T) ** 2 / (R))])
+                        Tie.append([T])
+
+        # Valores de SDS & SD1
+        Sds = n * z * fads[0]
+        Sd1 = n * z * fads[0] * (Tc / 1) ** r
+
+        Tie = np.array(Tie)
+        Sae = np.array(Sae)
+        Sai = np.array(Sai)
+        Tie = Tie[:, 0]
+        Sae = Sae[:, 0]
+        Sai = Sai[:, 0]
+
+        SaeF = []
+        SaiF = []
+        TieF = []
+
+        for i in np.arange(0, len(Tfind), 1):
+            Ta = Tfind[i]
+            if Ta <= To:
+                SaeF.append([z * fads[0] * (1 + (n - 1) * Ta / To)])
+                SaiF.append([I * n * z * fads[0] / (R)])
+                TieF.append([Ta])
+            else:
+                if Ta <= Tc:
+                    SaeF.append([n * z * fads[0]])
+                    SaiF.append([I * n * z * fads[0] / (R)])
+                    TieF.append([Ta])
+                else:
+                    if Ta <= Tl:
+                        SaeF.append([n * z * fads[0] * (Tc / Ta) ** r])
+                        SaiF.append([I * n * z * fads[0] * (Tc / Ta) ** r / (R)])
+                        TieF.append([Ta])
+                    else:
+                        SaeF.append([n * z * fads[0] * (Tc / Ta) ** r * (Tl / Ta) ** 2])
+                        SaiF.append([I * n * z * fads[0] * (Tc / Tl) ** r * (Tl / Ta) ** 2 / (R)])
+                        TieF.append([Ta])
+
+        TieF = np.array(TieF)
+        SaeF = np.array(SaeF)
+        SaiF = np.array(SaiF)
+        TieF = TieF[:, 0]
+        SaeF = SaeF[:, 0]
+        SaiF = SaiF[:, 0]
+
+
+        fig1, ax1 = plt.subplots(figsize=(21/1, 9/1))                                                                
+            
+        ax1.plot(Tie, Sae, color=(0, 0, 0), marker='+', markersize=0, markerfacecolor='w',                             
+        markeredgewidth=0, linewidth=1.5, alpha=1.0,linestyle = '-',label= f'Elastic Response Spectra')
+        ax1.plot(Tie, Sai, color=(0, 0, 1), marker='+', markersize=0, markerfacecolor='w',                              
+        markeredgewidth=0, linewidth=1.5, alpha=1.0,linestyle = '-',label= f'Inelastic Response Spectra')
+
+        ax1.plot([0.3,0.3], [0,Sds], color=(0.5, 0.5, 0.5), marker='o', markersize=5, markerfacecolor='white',                              
+        markeredgewidth=1, linewidth=1.0, alpha=1.0,linestyle = '--')
+        ax1.plot([1,1], [0,Sd1], color=(0.5, 0.5, 0.5), marker='o', markersize=5, markerfacecolor='white',                              
+        markeredgewidth=1, linewidth=1.0, alpha=1.0,linestyle = '--')
+
+
+        for u in np.arange(0, len(Tfind), 1):
+            ax1.plot([TieF[u],TieF[u]], [0,SaeF[u]], color=(1, 0.5, 0.5), marker='o', markersize=3, markerfacecolor= (1, 0, 0),                              
+            markeredgewidth=1, linewidth=1.0, alpha=1.0,linestyle = '--')
+            ax1.plot([TieF[u]], [SaiF[u]], color=(1, 0.5, 0.5), marker='o', markersize=3, markerfacecolor= (1, 0, 0),                              
+            markeredgewidth=1, linewidth=1.0, alpha=1.0,linestyle = '--')
+            ax1.text(TieF[u] + 0.02, SaeF[u] - 0.01, f'Sae = {SaeF[u]:.3f} g', fontsize= 7, verticalalignment='top', horizontalalignment='left', color = (1, 0, 0), rotation=90)
+            ax1.text(TieF[u] + 0.02, SaiF[u] + 0.01, f'Sai = {SaiF[u]:.3f} g', fontsize= 7, verticalalignment='bottom', horizontalalignment='left', color = (1, 0, 0), rotation=90)
+            ax1.text(TieF[u] + 0.02, 0 + 0.01, f'T = {TieF[u]:.3f} s', fontsize= 7, verticalalignment='top', horizontalalignment='left', color = (1, 0, 0), rotation=90)
+
+
+        ax1.text(0.3, Sds + 0.01, f'Sds = {Sds:.3f} g', fontsize=10, verticalalignment='bottom', horizontalalignment='left')
+        ax1.text(1, Sd1 + 0.01, f'Sd1 = {Sd1:.3f} g', fontsize=10, verticalalignment='bottom', horizontalalignment='left')
+        ax1.set_xlim([Tie[0], (max(Tie))])                                                                               
+        ax1.set_ylim([0, (max(Sae)*1.05)])                                                                              
+        plt.title('SPEC NEC-SE-DS-2024', fontsize=10, color=(0, 0, 1))                                                      
+        plt.xlabel('Period (T) [s]', rotation=0, fontsize=10, color=(0, 0, 0))                                          
+        plt.ylabel('Max Response Acceleration (Sa) [g]', rotation=90, fontsize=10, color=(0, 0, 0))                     
+        legend = plt.legend(fontsize=10)                                                                               
+        legend.get_frame().set_edgecolor('none')                                                                       
+        ax1.grid(which='both', axis='x', alpha=0.5) 
+
+        plt.show()
+
+        ResulF = pd.DataFrame({ 'Period [s]': TieF,'Sae [g]': SaeF,'Sai [g]': SaiF})
+    
+        return ResulF       
