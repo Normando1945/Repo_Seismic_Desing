@@ -1,0 +1,13 @@
+# Data and large artifacts
+All_scripts/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Model/data artifacts
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
