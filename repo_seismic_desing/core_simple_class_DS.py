@@ -762,4 +762,4 @@ class SpecNec2024_Sae_Sai_modal():
 
         ResulF = pd.DataFrame({ 'Period [s]': TieF,'Sae [g]': SaeF,'Sai [g]': SaiF})
     
-        return ResulF, SaeF, SaiF, Tl, Sds, Sd1        
+        return ResulF, SaeF, SaiF, Tl, Sds, Sd1 , Sae, Sai, Tie       
